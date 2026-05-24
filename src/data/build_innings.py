@@ -3,12 +3,20 @@
 from __future__ import annotations
 
 import pandas as pd
+import numpy as np
+import sys
+from pathlib import Path
+
+# Allow `python src/data/parse_cricsheet.py` from any working directory
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
 
 from src.data.constants import CRICSHEET_BALLS, PROCESSED_DIR
 
 
 def _safe_rate(num: pd.Series, den: pd.Series, mult: float = 1.0) -> pd.Series:
-    return (num / den.replace(0, pd.NA) * mult).astype(float)
+    return (num / den.replace(0, np.nan) * mult).astype(float)
 
 
 def load_balls() -> pd.DataFrame:
@@ -19,6 +27,7 @@ def load_balls() -> pd.DataFrame:
 
 def build_batting_innings(balls: pd.DataFrame) -> pd.DataFrame:
     legal = balls[balls["legal_ball"] == 1].copy()
+    #Find aggregate batting stats per player per innings
     g = legal.groupby(
         ["match_id", "competition", "season", "innings", "batter", "batter_id"],
         dropna=False,
@@ -30,6 +39,7 @@ def build_batting_innings(balls: pd.DataFrame) -> pd.DataFrame:
         batting_team=("batting_team", "first"),
     ).reset_index()
 
+    #Find aggregate batting stats per player per innings per phase (separate aggregates for powerplay, middle, and death)
     phase = (
         legal.groupby(
             ["match_id", "competition", "season", "innings", "batter", "batter_id", "phase"],
@@ -54,19 +64,20 @@ def build_batting_innings(balls: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_bowling_innings(balls: pd.DataFrame) -> pd.DataFrame:
-    legal = balls[(balls["legal_ball"] == 1)].copy()
-    g = legal.groupby(
+    g = balls.groupby(
         ["match_id", "competition", "season", "innings", "bowler", "bowler_id"],
         dropna=False,
     ).agg(
         runs_conceded=("runs_total", "sum"),
         balls_bowled=("legal_ball", "sum"),
         wickets=("is_wicket", "sum"),
+        wides=("is_wide", "sum"),
+        noballs=("is_noball", "sum"),
         bowling_team=("bowling_team", "first"),
     ).reset_index()
 
     phase = (
-        legal.groupby(
+        balls.groupby(
             ["match_id", "competition", "season", "innings", "bowler", "bowler_id", "phase"],
             dropna=False,
         )
@@ -125,6 +136,8 @@ def aggregate_player_season_bowling(innings: pd.DataFrame) -> pd.DataFrame:
         mid_balls=("mid_balls", "sum"),
         death_runs=("death_runs", "sum"),
         death_balls=("death_balls", "sum"),
+        wides=("wides", "sum"),
+        noballs=("noballs", "sum"),
     ).reset_index()
 
     g["economy"] = _safe_rate(g["runs_conceded"], g["balls_bowled"], 6.0)
@@ -134,17 +147,44 @@ def aggregate_player_season_bowling(innings: pd.DataFrame) -> pd.DataFrame:
     g["mid_economy"] = _safe_rate(g["mid_runs"], g["mid_balls"], 6.0)
     g["death_economy"] = _safe_rate(g["death_runs"], g["death_balls"], 6.0)
     g["role"] = "bowl"
+    g["wide_rate"] = _safe_rate(g["wides"], g["balls_bowled"], 6.0)
+    g["noball_rate"] = _safe_rate(g["noballs"], g["balls_bowled"], 6.0)
     return g
 
 
 def build_player_season_stats(balls: pd.DataFrame) -> pd.DataFrame:
-    bat_inn = build_batting_innings(balls)
-    bowl_inn = build_bowling_innings(balls)
-    bat_season = aggregate_player_season_batting(bat_inn)
+    bat_inn   = build_batting_innings(balls)
+    bowl_inn  = build_bowling_innings(balls)
+    bat_season  = aggregate_player_season_batting(bat_inn)
     bowl_season = aggregate_player_season_bowling(bowl_inn)
 
-    bat_season = bat_season.rename(columns={"batter": "player_name", "batter_id": "player_id"})
-    bowl_season = bowl_season.rename(columns={"bowler": "player_name", "bowler_id": "player_id"})
+    bat_season = bat_season.rename(columns={
+        "batter":      "player_name",
+        "batter_id":   "player_id",
+        "pp_runs":     "bat_pp_runs",
+        "pp_balls":    "bat_pp_balls",
+        "mid_runs":    "bat_mid_runs",
+        "mid_balls":   "bat_mid_balls",
+        "death_runs":  "bat_death_runs",
+        "death_balls": "bat_death_balls",
+        "pp_sr":       "bat_pp_sr",
+        "mid_sr":      "bat_mid_sr",
+        "death_sr":    "bat_death_sr",
+    })
+
+    bowl_season = bowl_season.rename(columns={
+        "bowler":      "player_name",
+        "bowler_id":   "player_id",
+        "pp_runs":     "bowl_pp_runs",
+        "pp_balls":    "bowl_pp_balls",
+        "mid_runs":    "bowl_mid_runs",
+        "mid_balls":   "bowl_mid_balls",
+        "death_runs":  "bowl_death_runs",
+        "death_balls": "bowl_death_balls",
+        "pp_economy":  "bowl_pp_economy",
+        "mid_economy": "bowl_mid_economy",
+        "death_economy": "bowl_death_economy",
+    })
 
     combined = pd.concat([bat_season, bowl_season], ignore_index=True)
     return combined
@@ -153,6 +193,7 @@ def build_player_season_stats(balls: pd.DataFrame) -> pd.DataFrame:
 def main() -> None:
     balls = load_balls()
     stats = build_player_season_stats(balls)
+    print(stats.columns)
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     out = PROCESSED_DIR / "player_season_raw.parquet"
     stats.to_parquet(out, index=False)

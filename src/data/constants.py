@@ -16,14 +16,14 @@ KAGGLE_DELIVERIES_LEGACY = INTERIM_DIR / "deliveries.parquet"
 CRICSHEET_BALLS = INTERIM_DIR / "cricsheet_balls.parquet"
 CRICSHEET_MATCHES = INTERIM_DIR / "cricsheet_matches.parquet"
 
-# CRICSHEET_DIRS = {
-#     "IPL": RAW_DIR / "cricsheet_ipl",
-#     "SMA": RAW_DIR / "cricsheet_sma",
-# }
-
 CRICSHEET_DIRS = {
-    "IPL": RAW_DIR / "cricsheet_ipl_single",
+    "IPL": RAW_DIR / "cricsheet_ipl",
+    "SMA": RAW_DIR / "cricsheet_sma",
 }
+
+# CRICSHEET_DIRS = {
+#     "IPL": RAW_DIR / "cricsheet_ipl_single",
+# }
 
 def resolve_kaggle_matches_path() -> Path:
     if KAGGLE_MATCHES.exists():

@@ -19,8 +19,8 @@ from src.data.constants import (
 CAF_PATH = PROCESSED_DIR / "caf_factors.json"
 CAF_CLIP = (0.5, 2.0)
 
-BAT_STATS = ["strike_rate", "runs_per_innings", "boundary_pct", "pp_sr", "mid_sr", "death_sr"]
-BOWL_STATS = ["economy", "bowling_sr", "wickets_per_innings", "pp_economy", "mid_economy", "death_economy"]
+BAT_STATS = ["strike_rate", "runs_per_innings", "boundary_pct", "bat_pp_sr", "bat_mid_sr", "bat_death_sr"]
+BOWL_STATS = ["economy", "bowling_sr", "wickets_per_innings", "bowl_pp_economy", "bowl_mid_economy", "bowl_death_economy"]
 
 
 def _career_stats(df: pd.DataFrame, role: str) -> pd.DataFrame:
@@ -35,12 +35,12 @@ def _career_stats(df: pd.DataFrame, role: str) -> pd.DataFrame:
             balls=("balls", "sum"),
             fours=("fours", "sum"),
             sixes=("sixes", "sum"),
-            pp_runs=("pp_runs", "sum"),
-            pp_balls=("pp_balls", "sum"),
-            mid_runs=("mid_runs", "sum"),
-            mid_balls=("mid_balls", "sum"),
-            death_runs=("death_runs", "sum"),
-            death_balls=("death_balls", "sum"),
+            bat_pp_runs=("bat_pp_runs", "sum"),
+            bat_pp_balls=("bat_pp_balls", "sum"),
+            bat_mid_runs=("bat_mid_runs", "sum"),
+            bat_mid_balls=("bat_mid_balls", "sum"),
+            bat_death_runs=("bat_death_runs", "sum"),
+            bat_death_balls=("bat_death_balls", "sum"),
         )
         agg["strike_rate"] = np.where(agg["balls"] > 0, agg["runs"] / agg["balls"] * 100, np.nan)
         agg["runs_per_innings"] = np.where(agg["bat_innings"] > 0, agg["runs"] / agg["bat_innings"], np.nan)
@@ -48,7 +48,7 @@ def _career_stats(df: pd.DataFrame, role: str) -> pd.DataFrame:
             agg["balls"] > 0, (agg["fours"] + agg["sixes"]) / agg["balls"] * 100, np.nan
         )
         for p in ("pp", "mid", "death"):
-            r, b = f"{p}_runs", f"{p}_balls"
+            r, b = f"bat_{p}_runs", f"bat_{p}_balls"
             agg[f"{p}_sr"] = np.where(agg[b] > 0, agg[r] / agg[b] * 100, np.nan)
     else:
         agg = sub.groupby("player_key", as_index=False).agg(
@@ -56,12 +56,12 @@ def _career_stats(df: pd.DataFrame, role: str) -> pd.DataFrame:
             runs_conceded=("runs_conceded", "sum"),
             balls_bowled=("balls_bowled", "sum"),
             wickets=("wickets", "sum"),
-            pp_runs=("pp_runs", "sum"),
-            pp_balls=("pp_balls", "sum"),
-            mid_runs=("mid_runs", "sum"),
-            mid_balls=("mid_balls", "sum"),
-            death_runs=("death_runs", "sum"),
-            death_balls=("death_balls", "sum"),
+            bowl_pp_runs=("bowl_pp_runs", "sum"),
+            bowl_pp_balls=("bowl_pp_balls", "sum"),
+            bowl_mid_runs=("bowl_mid_runs", "sum"),
+            bowl_mid_balls=("bowl_mid_balls", "sum"),
+            bowl_death_runs=("bowl_death_runs", "sum"),
+            bowl_death_balls=("bowl_death_balls", "sum"),
         )
         agg["economy"] = np.where(
             agg["balls_bowled"] > 0, agg["runs_conceded"] / agg["balls_bowled"] * 6, np.nan
@@ -71,7 +71,7 @@ def _career_stats(df: pd.DataFrame, role: str) -> pd.DataFrame:
             agg["bowl_innings"] > 0, agg["wickets"] / agg["bowl_innings"], np.nan
         )
         for p in ("pp", "mid", "death"):
-            r, b = f"{p}_runs", f"{p}_balls"
+            r, b = f"bowl_{p}_runs", f"bowl_{p}_balls"
             agg[f"{p}_economy"] = np.where(agg[b] > 0, agg[r] / agg[b] * 6, np.nan)
 
     return agg
