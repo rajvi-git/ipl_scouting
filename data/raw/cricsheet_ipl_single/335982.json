@@ -1,0 +1,305 @@
+{
+  "meta": {
+    "data_version": "1.0.0",
+    "created": "2011-05-06",
+    "revision": 2
+  },
+  "info": {
+    "balls_per_over": 6,
+    "city": "Bangalore",
+    "dates": [
+      "2008-04-18"
+    ],
+    "event": {
+      "match_number": 1,
+      "name": "Indian Premier League"
+    },
+    "gender": "male",
+    "match_type": "T20",
+    "officials": {
+      "match_referees": [
+        "J Srinath"
+      ],
+      "reserve_umpires": [
+        "VN Kulkarni"
+      ],
+      "tv_umpires": [
+        "AM Saheba"
+      ],
+      "umpires": [
+        "Asad Rauf",
+        "RE Koertzen"
+      ]
+    },
+    "outcome": {
+      "by": {
+        "runs": 140
+      },
+      "winner": "Kolkata Knight Riders"
+    },
+    "overs": 20,
+    "player_of_match": [
+      "BB McCullum"
+    ],
+    "players": {
+      "Kolkata Knight Riders": [
+        "SC Ganguly",
+        "BB McCullum",
+        "RT Ponting",
+        "DJ Hussey",
+        "Mohammad Hafeez",
+        "LR Shukla",
+        "WP Saha",
+        "AB Agarkar",
+        "AB Dinda",
+        "M Kartik",
+        "I Sharma"
+      ],
+      "Royal Challengers Bangalore": [
+        "R Dravid",
+        "W Jaffer",
+        "V Kohli",
+        "JH Kallis",
+        "CL White",
+        "MV Boucher",
+        "B Akhil",
+        "AA Noffke",
+        "P Kumar",
+        "Z Khan",
+        "SB Joshi"
+      ]
+    },
+    "registry": {
+      "people": {
+        "AA Noffke": "b69e69ed",
+        "AB Agarkar": "fa463154",
+        "AB Dinda": "66b30f71",
+        "AM Saheba": "883e3818",
+        "Asad Rauf": "861606b7",
+        "B Akhil": "af7dadf7",
+        "BB McCullum": "b8a55852",
+        "CL White": "d0513f63",
+        "DJ Hussey": "fd835ab3",
+        "I Sharma": "5bb1a1c4",
+        "J Srinath": "bad31fac",
+        "JH Kallis": "86dc8f2e",
+        "LR Shukla": "b1451597",
+        "M Kartik": "abfeb126",
+        "MV Boucher": "f3cb53a1",
+        "Mohammad Hafeez": "9ab63e7b",
+        "P Kumar": "e938e1bc",
+        "R Dravid": "0184dc35",
+        "RE Koertzen": "0265fab2",
+        "RT Ponting": "7d415ea5",
+        "SB Joshi": "670709ec",
+        "SC Ganguly": "725529bc",
+        "V Kohli": "ba607b88",
+        "VN Kulkarni": "0b126008",
+        "W Jaffer": "619aa81f",
+        "WP Saha": "fe11caa6",
+        "Z Khan": "91a4a398"
+      }
+    },
+    "season": "2007/08",
+    "team_type": "club",
+    "teams": [
+      "Royal Challengers Bangalore",
+      "Kolkata Knight Riders"
+    ],
+    "toss": {
+      "decision": "field",
+      "winner": "Royal Challengers Bangalore"
+    },
+    "venue": "M Chinnaswamy Stadium"
+  },
+  "innings": [
+    {
+      "team": "Kolkata Knight Riders",
+      "overs": [
+        {
+          "over": 0,
+          "deliveries": [
+            {
+              "batter": "SC Ganguly",
+              "bowler": "P Kumar",
+              "extras": {
+                "legbyes": 1
+              },
+              "non_striker": "BB McCullum",
+              "runs": {
+                "batter": 0,
+                "extras": 1,
+                "total": 1
+              }
+            },
+            {
+              "batter": "BB McCullum",
+              "bowler": "P Kumar",
+              "non_striker": "SC Ganguly",
+              "runs": {
+                "batter": 0,
+                "extras": 0,
+                "total": 0
+              }
+            },
+            {
+              "batter": "BB McCullum",
+              "bowler": "P Kumar",
+              "extras": {
+                "wides": 1
+              },
+              "non_striker": "SC Ganguly",
+              "runs": {
+                "batter": 0,
+                "extras": 1,
+                "total": 1
+              }
+            },
+            {
+              "batter": "BB McCullum",
+              "bowler": "P Kumar",
+              "non_striker": "SC Ganguly",
+              "runs": {
+                "batter": 0,
+                "extras": 0,
+                "total": 0
+              }
+            },
+            {
+              "batter": "BB McCullum",
+              "bowler": "P Kumar",
+              "non_striker": "SC Ganguly",
+              "runs": {
+                "batter": 0,
+                "extras": 0,
+                "total": 0
+              }
+            },
+            {
+              "batter": "BB McCullum",
+              "bowler": "P Kumar",
+              "non_striker": "SC Ganguly",
+              "runs": {
+                "batter": 0,
+                "extras": 0,
+                "total": 0
+              }
+            },
+            {
+              "batter": "BB McCullum",
+              "bowler": "P Kumar",
+              "extras": {
+                "legbyes": 1
+              },
+              "non_striker": "SC Ganguly",
+              "runs": {
+                "batter": 0,
+                "extras": 1,
+                "total": 1
+              }
+            }
+          ]
+        }
+      ],
+      "powerplays": [
+        {
+          "from": 0.1,
+          "to": 5.6,
+          "type": "mandatory"
+        }
+      ]
+    },
+    {
+      "team": "Royal Challengers Bangalore",
+      "overs": [{
+        "over": 0,
+        "deliveries": [
+          {
+            "batter": "R Dravid",
+            "bowler": "AB Dinda",
+            "non_striker": "W Jaffer",
+            "runs": {
+              "batter": 1,
+              "extras": 0,
+              "total": 1
+            }
+          },
+          {
+            "batter": "W Jaffer",
+            "bowler": "AB Dinda",
+            "extras": {
+              "wides": 1
+            },
+            "non_striker": "R Dravid",
+            "runs": {
+              "batter": 0,
+              "extras": 1,
+              "total": 1
+            }
+          },
+          {
+            "batter": "W Jaffer",
+            "bowler": "AB Dinda",
+            "non_striker": "R Dravid",
+            "runs": {
+              "batter": 0,
+              "extras": 0,
+              "total": 0
+            }
+          },
+          {
+            "batter": "W Jaffer",
+            "bowler": "AB Dinda",
+            "non_striker": "R Dravid",
+            "runs": {
+              "batter": 1,
+              "extras": 0,
+              "total": 1
+            }
+          },
+          {
+            "batter": "R Dravid",
+            "bowler": "AB Dinda",
+            "non_striker": "W Jaffer",
+            "runs": {
+              "batter": 1,
+              "extras": 0,
+              "total": 1
+            }
+          },
+          {
+            "batter": "W Jaffer",
+            "bowler": "AB Dinda",
+            "non_striker": "R Dravid",
+            "runs": {
+              "batter": 0,
+              "extras": 0,
+              "total": 0
+            }
+          },
+          {
+            "batter": "W Jaffer",
+            "bowler": "AB Dinda",
+            "non_striker": "R Dravid",
+            "runs": {
+              "batter": 0,
+              "extras": 0,
+              "total": 0
+            }
+          }
+        ]
+      }],
+      "powerplays": [
+        {
+          "from": 0.1,
+          "to": 5.6,
+          "type": "mandatory"
+        }
+      ],
+      "target": {
+        "overs": 20,
+        "runs": 223
+      }
+    }
+  ]
+}
