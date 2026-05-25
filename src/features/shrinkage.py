@@ -13,7 +13,7 @@ def _league_means(df: pd.DataFrame, role: str, stats: list[str], prefix: str) ->
     sub = df[(df["role"] == role) & (df["competition"] == "IPL")]
     means = {}
     for stat in stats:
-        col = f"{prefix}_{stat}"
+        col = f"{prefix}{stat}"
         if col in sub.columns:
             means[stat] = sub[col].mean()
         elif stat in sub.columns:

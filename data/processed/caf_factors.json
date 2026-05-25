@@ -1,12 +1,42 @@
 {
-  "bat": {
-    "strike_rate": 0.9714576235552796,
-    "runs_per_innings": 0.7941800872584983,
-    "boundary_pct": 0.9410173040484249
+  "factors": {
+    "bat": {
+      "strike_rate": 0.9753441289820218,
+      "runs_per_innings": 0.7939001907329442,
+      "boundary_pct": 0.9428201687116564,
+      "bat_pp_sr": 0.9707994944719984,
+      "bat_mid_sr": 0.9369981958300562,
+      "bat_death_sr": 0.9180184706670494
+    },
+    "bowl": {
+      "economy": 1.2177100958826848,
+      "bowling_sr": 1.154357459379616,
+      "wickets_per_innings": 0.8356867779204107,
+      "bowl_pp_economy": 1.228659428986237,
+      "bowl_mid_economy": 1.2185978084415583,
+      "bowl_death_economy": 1.2037037037037037
+    }
   },
-  "bowl": {
-    "economy": 1.2079890950858692,
-    "bowling_sr": 1.1560758082497213,
-    "wickets_per_innings": 0.8222222222222222
+  "sample_sizes": {
+    "bat": {
+      "strike_rate": 80,
+      "runs_per_innings": 72,
+      "boundary_pct": 77,
+      "bat_pp_sr": 64,
+      "bat_mid_sr": 80,
+      "bat_death_sr": 78
+    },
+    "bowl": {
+      "economy": 79,
+      "bowling_sr": 77,
+      "wickets_per_innings": 71,
+      "bowl_pp_economy": 70,
+      "bowl_mid_economy": 79,
+      "bowl_death_economy": 71
+    }
+  },
+  "eligible_players": {
+    "bat": 80,
+    "bowl": 79
   }
 }

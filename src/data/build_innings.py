@@ -14,6 +14,9 @@ if str(_PROJECT_ROOT) not in sys.path:
 
 from src.data.constants import CRICSHEET_BALLS, PROCESSED_DIR
 
+BAT_INNINGS_PATH = PROCESSED_DIR / "player_innings_batting.parquet"
+BOWL_INNINGS_PATH = PROCESSED_DIR / "player_innings_bowling.parquet"
+
 
 def _safe_rate(num: pd.Series, den: pd.Series, mult: float = 1.0) -> pd.Series:
     return (num / den.replace(0, np.nan) * mult).astype(float)
@@ -26,26 +29,25 @@ def load_balls() -> pd.DataFrame:
 
 
 def build_batting_innings(balls: pd.DataFrame) -> pd.DataFrame:
-    legal = balls[balls["legal_ball"] == 1].copy()
-    #Find aggregate batting stats per player per innings
-    g = legal.groupby(
+    # Batter runs count from the bat; balls faced exclude wides but include no-balls.
+    g = balls.groupby(
         ["match_id", "competition", "season", "innings", "batter", "batter_id"],
         dropna=False,
     ).agg(
         runs=("runs_batter", "sum"),
-        balls=("legal_ball", "sum"),
+        balls=("batter_balls_faced", "sum"),
         fours=("is_four", "sum"),
         sixes=("is_six", "sum"),
         batting_team=("batting_team", "first"),
     ).reset_index()
 
-    #Find aggregate batting stats per player per innings per phase (separate aggregates for powerplay, middle, and death)
+    # Phase balls follow batting balls faced: exclude wides, include no-balls.
     phase = (
-        legal.groupby(
+        balls.groupby(
             ["match_id", "competition", "season", "innings", "batter", "batter_id", "phase"],
             dropna=False,
         )
-        .agg(pp_runs=("runs_batter", "sum"), pp_balls=("legal_ball", "sum"))
+        .agg(pp_runs=("runs_batter", "sum"), pp_balls=("batter_balls_faced", "sum"))
         .reset_index()
     )
 
@@ -68,11 +70,11 @@ def build_bowling_innings(balls: pd.DataFrame) -> pd.DataFrame:
         ["match_id", "competition", "season", "innings", "bowler", "bowler_id"],
         dropna=False,
     ).agg(
-        runs_conceded=("runs_total", "sum"),
+        runs_conceded=("bowler_runs_conceded", "sum"),
         balls_bowled=("legal_ball", "sum"),
-        wickets=("is_wicket", "sum"),
-        wides=("is_wide", "sum"),
-        noballs=("is_noball", "sum"),
+        wickets=("bowler_wicket", "sum"),
+        wides=("extras_wides", "sum"),
+        noballs=("extras_noballs", "sum"),
         bowling_team=("bowling_team", "first"),
     ).reset_index()
 
@@ -81,7 +83,7 @@ def build_bowling_innings(balls: pd.DataFrame) -> pd.DataFrame:
             ["match_id", "competition", "season", "innings", "bowler", "bowler_id", "phase"],
             dropna=False,
         )
-        .agg(runs=("runs_total", "sum"), balls=("legal_ball", "sum"))
+        .agg(runs=("bowler_runs_conceded", "sum"), balls=("legal_ball", "sum"))
         .reset_index()
     )
 
@@ -152,9 +154,18 @@ def aggregate_player_season_bowling(innings: pd.DataFrame) -> pd.DataFrame:
     return g
 
 
-def build_player_season_stats(balls: pd.DataFrame) -> pd.DataFrame:
+def save_player_innings(bat_inn: pd.DataFrame, bowl_inn: pd.DataFrame) -> None:
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    bat_inn.to_parquet(BAT_INNINGS_PATH, index=False)
+    bowl_inn.to_parquet(BOWL_INNINGS_PATH, index=False)
+
+
+def build_player_season_stats(balls: pd.DataFrame, save_innings: bool = True) -> pd.DataFrame:
     bat_inn   = build_batting_innings(balls)
     bowl_inn  = build_bowling_innings(balls)
+    if save_innings:
+        save_player_innings(bat_inn, bowl_inn)
+
     bat_season  = aggregate_player_season_batting(bat_inn)
     bowl_season = aggregate_player_season_bowling(bowl_inn)
 

@@ -27,7 +27,8 @@ def run_feature_engineering(skip_parse: bool = False) -> pd.DataFrame:
     print("=== Step 3: Layer 1 — CAF ===")
     factors = estimate_caf_factors(raw)
     save_caf_factors(factors)
-    print(f"  CAF factors saved ({sum(len(v) for v in factors.values())} multipliers)")
+    factor_values = factors.get("factors", factors)
+    print(f"  CAF factors saved ({sum(len(v) for v in factor_values.values())} multipliers)")
     with_caf = apply_caf(raw, factors)
 
     print("=== Step 4: Layer 4 — Bayesian shrinkage (toward IPL means) ===")
@@ -35,7 +36,7 @@ def run_feature_engineering(skip_parse: bool = False) -> pd.DataFrame:
 
     out_path = PROCESSED_DIR / "player_features.parquet"
     featured.to_parquet(out_path, index=False)
-    print(f"=== Done: {len(featured)} rows → {out_path} ===")
+    print(f"=== Done: {len(featured)} rows -> {out_path} ===")
 
     summary = featured.groupby(["competition", "role"]).size().unstack(fill_value=0)
     print(summary)

@@ -23,6 +23,13 @@ BAT_STATS = ["strike_rate", "runs_per_innings", "boundary_pct", "bat_pp_sr", "ba
 BOWL_STATS = ["economy", "bowling_sr", "wickets_per_innings", "bowl_pp_economy", "bowl_mid_economy", "bowl_death_economy"]
 
 
+def _factor_values(factors: dict) -> dict:
+    """Accept both new metadata shape and legacy {role: {stat: value}} shape."""
+    if "factors" in factors:
+        return factors["factors"]
+    return factors
+
+
 def _career_stats(df: pd.DataFrame, role: str) -> pd.DataFrame:
     sub = df[df["role"] == role].copy()
     if sub.empty:
@@ -49,7 +56,7 @@ def _career_stats(df: pd.DataFrame, role: str) -> pd.DataFrame:
         )
         for p in ("pp", "mid", "death"):
             r, b = f"bat_{p}_runs", f"bat_{p}_balls"
-            agg[f"{p}_sr"] = np.where(agg[b] > 0, agg[r] / agg[b] * 100, np.nan)
+            agg[f"bat_{p}_sr"] = np.where(agg[b] > 0, agg[r] / agg[b] * 100, np.nan)
     else:
         agg = sub.groupby("player_key", as_index=False).agg(
             bowl_innings=("bowl_innings", "sum"),
@@ -72,7 +79,7 @@ def _career_stats(df: pd.DataFrame, role: str) -> pd.DataFrame:
         )
         for p in ("pp", "mid", "death"):
             r, b = f"bowl_{p}_runs", f"bowl_{p}_balls"
-            agg[f"{p}_economy"] = np.where(agg[b] > 0, agg[r] / agg[b] * 6, np.nan)
+            agg[f"bowl_{p}_economy"] = np.where(agg[b] > 0, agg[r] / agg[b] * 6, np.nan)
 
     return agg
 
@@ -95,14 +102,18 @@ def estimate_caf_factors(player_season: pd.DataFrame) -> dict:
     ipl = player_season[player_season["competition"] == "IPL"]
 
     factors: dict = {"bat": {}, "bowl": {}}
+    sample_sizes: dict = {"bat": {}, "bowl": {}}
+    eligible_players: dict = {"bat": 0, "bowl": 0}
 
     for role, stats in [("bat", BAT_STATS), ("bowl", BOWL_STATS)]:
         c_sma = _career_stats(sma, role).set_index("player_key")
         c_ipl = _career_stats(ipl, role).set_index("player_key")
         paired = _eligible_players(c_sma.reset_index(), c_ipl.reset_index(), role)
+        eligible_players[role] = int(len(paired))
 
         for stat in stats:
             if stat not in c_sma.columns or stat not in c_ipl.columns:
+                sample_sizes[role][stat] = 0
                 continue
             ratios = []
             for pk in paired:
@@ -112,20 +123,26 @@ def estimate_caf_factors(player_season: pd.DataFrame) -> dict:
                     r = float(ipl_v / dom)
                     if CAF_CLIP[0] <= r <= CAF_CLIP[1]:
                         ratios.append(r)
+            sample_sizes[role][stat] = int(len(ratios))
             if ratios:
                 factors[role][stat] = float(np.median(ratios))
             else:
                 factors[role][stat] = 1.0
 
-    return factors
+    return {
+        "factors": factors,
+        "sample_sizes": sample_sizes,
+        "eligible_players": eligible_players,
+    }
 
 
 def apply_caf(player_season: pd.DataFrame, factors: dict) -> pd.DataFrame:
     out = player_season.copy()
+    values = _factor_values(factors)
     for role, stats in [("bat", BAT_STATS), ("bowl", BOWL_STATS)]:
         mask = out["role"] == role
         for stat in stats:
-            caf = factors.get(role, {}).get(stat, 1.0)
+            caf = values.get(role, {}).get(stat, 1.0)
             if stat in out.columns:
                 out.loc[mask, f"caf_{stat}"] = out.loc[mask, stat] * caf
     return out

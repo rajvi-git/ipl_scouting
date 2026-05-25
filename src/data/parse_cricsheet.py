@@ -16,6 +16,16 @@ import pandas as pd
 from src.data.constants import CRICSHEET_BALLS, CRICSHEET_DIRS, CRICSHEET_MATCHES, INTERIM_DIR
 
 
+BOWLER_WICKET_KINDS = {
+    "bowled",
+    "caught",
+    "caught and bowled",
+    "lbw",
+    "stumped",
+    "hit wicket",
+}
+
+
 def _phase(over: int) -> str:
     if over <= 5:
         return "powerplay"
@@ -52,8 +62,11 @@ def _parse_delivery(
     registry: dict,
 ) -> dict:
     extras = delivery.get("extras") or {}
-    is_wide = "wides" in extras
-    is_noball = "noballs" in extras
+    extras_wides = int(extras.get("wides", 0))
+    extras_noballs = int(extras.get("noballs", 0))
+    extras_byes = int(extras.get("byes", 0))
+    extras_legbyes = int(extras.get("legbyes", 0))
+    extras_penalty = int(extras.get("penalty", 0))
     runs = delivery.get("runs") or {}
     batter = delivery.get("batter")
     bowler = delivery.get("bowler")
@@ -61,8 +74,13 @@ def _parse_delivery(
     is_wicket = int(len(wickets) > 0)
     dismissal_kind = wickets[0].get("kind") if wickets else None
     player_out = wickets[0].get("player_out") if wickets else None
+    bowler_wicket = sum(1 for wicket in wickets if wicket.get("kind") in BOWLER_WICKET_KINDS)
 
-    legal_ball = 0 if is_wide or is_noball else 1
+    legal_ball = 0 if extras_wides > 0 or extras_noballs > 0 else 1
+    batter_balls_faced = 0 if extras_wides > 0 else 1
+    bowler_runs_conceded = (
+        runs.get("total", 0) - extras_byes - extras_legbyes - extras_penalty
+    )
 
     return {
         "match_id": match_id,
@@ -83,12 +101,19 @@ def _parse_delivery(
         "runs_batter": runs.get("batter", 0),
         "runs_extras": runs.get("extras", 0),
         "runs_total": runs.get("total", 0),
-        "is_wide": int(is_wide),
-        "is_noball": int(is_noball),
+        "extras_wides": extras_wides,
+        "extras_noballs": extras_noballs,
+        "extras_byes": extras_byes,
+        "extras_legbyes": extras_legbyes,
+        "extras_penalty": extras_penalty,
         "legal_ball": legal_ball,
+        "batter_balls_faced": batter_balls_faced,
         "is_wicket": is_wicket,
+        "bowler_wicket": bowler_wicket,
         "dismissal_kind": dismissal_kind,
         "player_out": player_out,
+        "player_out_id": registry.get(player_out) if player_out else None,
+        "bowler_runs_conceded": bowler_runs_conceded,
         "is_four": int(runs.get("batter", 0) == 4),
         "is_six": int(runs.get("batter", 0) == 6),
     }
