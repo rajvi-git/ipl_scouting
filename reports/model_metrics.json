@@ -1,15 +1,22 @@
 {
-  "training_rows": 161,
-  "players": 120,
+  "training_rows": 757,
+  "players": 169,
   "role_counts": {
-    "bat": 90,
-    "bowl": 71
+    "bat": 421,
+    "bowl": 336
   },
   "tier_counts": {
-    "marginal": 56,
-    "bust": 41,
-    "solid": 39,
-    "star": 25
+    "marginal": 265,
+    "bust": 190,
+    "solid": 188,
+    "star": 114
+  },
+  "early_stopping": {
+    "enabled": true,
+    "max_iter": 250,
+    "validation_fraction": 0.2,
+    "n_iter_no_change": 10,
+    "tol": 0.0001
   },
   "feature_columns": [
     "role",
@@ -81,51 +88,51 @@
   "impact_regression": {
     "model": "sklearn_hist_gradient_boosting_regressor",
     "n_splits": 5,
-    "mae": 0.5163934826371639,
-    "rmse": 0.705516778838166,
-    "spearman": 0.3232719856415376,
+    "mae": 0.5308632406368496,
+    "rmse": 0.670945524986495,
+    "spearman": 0.28015521799069204,
     "folds": [
       {
         "fold": 1,
-        "mae": 0.5634522358965779,
-        "rmse": 0.6903470715231173,
-        "spearman": 0.2833333333333333,
-        "n_test": 33
+        "mae": 0.5421745295096847,
+        "rmse": 0.6641568759142704,
+        "spearman": 0.3708704255170076,
+        "n_test": 152
       },
       {
         "fold": 2,
-        "mae": 0.5218075984474086,
-        "rmse": 0.7174117176641762,
-        "spearman": 0.0,
-        "n_test": 32
+        "mae": 0.5560242185181138,
+        "rmse": 0.6834657991990383,
+        "spearman": -0.1081538155948147,
+        "n_test": 152
       },
       {
         "fold": 3,
-        "mae": 0.4811363397853032,
-        "rmse": 0.7970717124557964,
-        "spearman": 0.8999999999999998,
-        "n_test": 32
+        "mae": 0.5552728062703002,
+        "rmse": 0.7208539938288876,
+        "spearman": 0.2040049384568754,
+        "n_test": 151
       },
       {
         "fold": 4,
-        "mae": 0.5872023705356184,
-        "rmse": 0.7197851557071698,
-        "spearman": -0.14285714285714288,
-        "n_test": 32
+        "mae": 0.5401645198009134,
+        "rmse": 0.6923470087145127,
+        "spearman": -0.10063456244774838,
+        "n_test": 151
       },
       {
         "fold": 5,
-        "mae": 0.42689828248155476,
-        "rmse": 0.5871615647113798,
-        "spearman": -0.1666666666666667,
-        "n_test": 32
+        "mae": 0.4604385908948118,
+        "rmse": 0.5861591026021056,
+        "spearman": 0.31343098766759936,
+        "n_test": 151
       }
     ]
   },
   "tier_classification": {
     "model": "sklearn_hist_gradient_boosting_classifier",
     "n_splits": 5,
-    "accuracy": 0.36645962732919257,
+    "accuracy": 0.35402906208718626,
     "labels": [
       "bust",
       "marginal",
@@ -134,67 +141,67 @@
     ],
     "confusion_matrix": [
       [
-        14,
-        11,
-        11,
-        5
+        50,
+        104,
+        29,
+        7
       ],
       [
-        16,
-        28,
+        47,
+        157,
+        50,
+        11
+      ],
+      [
+        18,
+        106,
+        50,
+        14
+      ],
+      [
         8,
-        4
-      ],
-      [
-        8,
-        13,
-        12,
-        6
-      ],
-      [
-        5,
-        5,
-        10,
-        5
+        71,
+        24,
+        11
       ]
     ],
     "classification_report": {
       "bust": {
-        "precision": 0.32558139534883723,
-        "recall": 0.34146341463414637,
-        "f1-score": 0.3333333333333333,
-        "support": 41.0
+        "precision": 0.4065040650406504,
+        "recall": 0.2631578947368421,
+        "f1-score": 0.3194888178913738,
+        "support": 190.0
       },
       "marginal": {
-        "precision": 0.49122807017543857,
-        "recall": 0.5,
-        "f1-score": 0.49557522123893805,
-        "support": 56.0
+        "precision": 0.3584474885844749,
+        "recall": 0.5924528301886792,
+        "f1-score": 0.4466571834992888,
+        "support": 265.0
       },
       "solid": {
-        "precision": 0.2926829268292683,
-        "recall": 0.3076923076923077,
-        "f1-score": 0.3,
-        "support": 39.0
+        "precision": 0.32679738562091504,
+        "recall": 0.26595744680851063,
+        "f1-score": 0.2932551319648094,
+        "support": 188.0
       },
       "star": {
-        "precision": 0.25,
-        "recall": 0.2,
-        "f1-score": 0.2222222222222222,
-        "support": 25.0
+        "precision": 0.2558139534883721,
+        "recall": 0.09649122807017543,
+        "f1-score": 0.14012738853503184,
+        "support": 114.0
       },
-      "accuracy": 0.36645962732919257,
+      "accuracy": 0.35402906208718626,
       "macro avg": {
-        "precision": 0.339873098088386,
-        "recall": 0.3372889305816135,
-        "f1-score": 0.3377826941986234,
-        "support": 161.0
+        "precision": 0.3368907231836031,
+        "recall": 0.3045148499510519,
+        "f1-score": 0.29988213047262596,
+        "support": 757.0
       },
       "weighted avg": {
-        "precision": 0.36349219431967916,
-        "recall": 0.36645962732919257,
-        "f1-score": 0.3644374820596444,
-        "support": 161.0
+        "precision": 0.34719294059050976,
+        "recall": 0.35402906208718626,
+        "f1-score": 0.33048020624709423,
+        "support": 757.0
       }
     }
   },
@@ -202,16 +209,20 @@
     "impact_regression": {
       "csv": "C:\\Users\\Rajvi\\OneDrive\\Documents\\MSc AI Applied To Sports\\Module4\\ipl_scouting\\reports\\impact_regression_learning_curve.csv",
       "png": "C:\\Users\\Rajvi\\OneDrive\\Documents\\MSc AI Applied To Sports\\Module4\\ipl_scouting\\reports\\impact_regression_learning_curve.png",
-      "best_iteration": 10,
-      "best_validation_mae": 0.5361042987894082,
-      "final_validation_mae": 0.5634522358965779
+      "best_iteration": 9,
+      "best_validation_mae": 0.5124999445577524,
+      "final_validation_mae": 0.5421745295096847
     },
     "tier_classification": {
       "csv": "C:\\Users\\Rajvi\\OneDrive\\Documents\\MSc AI Applied To Sports\\Module4\\ipl_scouting\\reports\\tier_classification_learning_curve.csv",
       "png": "C:\\Users\\Rajvi\\OneDrive\\Documents\\MSc AI Applied To Sports\\Module4\\ipl_scouting\\reports\\tier_classification_learning_curve.png",
-      "best_iteration": 5,
-      "best_validation_log_loss": 1.360470614005418,
-      "final_validation_log_loss": 1.9632468325268955
+      "best_iteration": 4,
+      "best_validation_log_loss": 1.3290243301804014,
+      "final_validation_log_loss": 1.3885452102395062
     }
+  },
+  "final_models": {
+    "impact_regressor_n_iter": 37,
+    "tier_classifier_n_iter": 35
   }
 }

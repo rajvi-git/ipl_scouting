@@ -19,6 +19,8 @@ from src.features.impact_score import add_impact_scores, add_tier_labels
 FEATURES_PATH = PROCESSED_DIR / "player_features.parquet"
 TRAINING_PATH = PROCESSED_DIR / "ml_training_pairs.parquet"
 THRESHOLDS_PATH = PROCESSED_DIR / "tier_thresholds.json"
+MIN_TARGET_IPL_BAT_INNINGS = 5
+MIN_TARGET_IPL_BOWL_INNINGS = 5
 
 BAT_FEATURES = [
     "bat_innings",
@@ -162,6 +164,7 @@ def _feature_prefix(row: dict) -> dict:
 
 
 def build_training_table(features: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """Build temporal player-season rows: prior SMA history -> target IPL season."""
     rows = []
     thresholds: dict = {}
 
@@ -172,28 +175,51 @@ def build_training_table(features: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
             if ipl_rows.empty:
                 continue
 
-            debut_season = int(ipl_rows["season"].min())
-            sma_rows = player_rows[
-                (player_rows["competition"] == "SMA") & (player_rows["season"] < debut_season)
-            ]
-            if sma_rows.empty:
-                continue
+            for target_season in sorted(ipl_rows["season"].dropna().astype(int).unique()):
+                target_rows = ipl_rows[ipl_rows["season"] == target_season]
+                if target_rows.empty:
+                    continue
 
-            label_stats = _aggregate_role_rows(ipl_rows[ipl_rows["season"] >= debut_season], role)
-            feature_stats = _aggregate_role_rows(sma_rows, role)
-            player_name = sma_rows["player_name"].dropna().iloc[-1] if sma_rows["player_name"].notna().any() else None
-            player_id = sma_rows["player_id"].dropna().iloc[-1] if sma_rows["player_id"].notna().any() else player_key
+                if role == "bat":
+                    target_sample = target_rows["bat_innings"].sum(skipna=True)
+                    if target_sample < MIN_TARGET_IPL_BAT_INNINGS:
+                        continue
+                else:
+                    target_sample = target_rows["bowl_innings"].sum(skipna=True)
+                    if target_sample < MIN_TARGET_IPL_BOWL_INNINGS:
+                        continue
 
-            row = {
-                "player_key": player_key,
-                "player_id": player_id,
-                "player_name": player_name,
-                "role": role,
-                "ipl_debut_season": debut_season,
-            }
-            row.update(_feature_prefix(feature_stats))
-            row.update({f"ipl_{key}": value for key, value in label_stats.items()})
-            rows.append(row)
+                sma_rows = player_rows[
+                    (player_rows["competition"] == "SMA") & (player_rows["season"] < target_season)
+                ]
+                if sma_rows.empty:
+                    continue
+
+                label_stats = _aggregate_role_rows(target_rows, role)
+                feature_stats = _aggregate_role_rows(sma_rows, role)
+                player_name = (
+                    sma_rows["player_name"].dropna().iloc[-1]
+                    if sma_rows["player_name"].notna().any()
+                    else None
+                )
+                player_id = (
+                    sma_rows["player_id"].dropna().iloc[-1]
+                    if sma_rows["player_id"].notna().any()
+                    else player_key
+                )
+
+                row = {
+                    "player_key": player_key,
+                    "player_id": player_id,
+                    "player_name": player_name,
+                    "role": role,
+                    "target_ipl_season": target_season,
+                    "target_ipl_sample": float(target_sample),
+                    "pair_type": "temporal_player_season",
+                }
+                row.update(_feature_prefix(feature_stats))
+                row.update({f"ipl_{key}": value for key, value in label_stats.items()})
+                rows.append(row)
 
     table = pd.DataFrame(rows)
     if table.empty:

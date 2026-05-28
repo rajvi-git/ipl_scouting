@@ -42,6 +42,10 @@ CLASSIFIER_PATH = MODELS_DIR / "tier_classifier.joblib"
 FEATURE_COLUMNS_PATH = MODELS_DIR / "feature_columns.json"
 
 TIER_ORDER = ["bust", "marginal", "solid", "star"]
+MAX_ITER = 250
+EARLY_STOPPING_ROUNDS = 10
+VALIDATION_FRACTION = 0.2
+TOL = 1e-4
 
 
 def _save_model(model: Pipeline, path: Path) -> None:
@@ -83,9 +87,13 @@ def _regressor(numeric: list[str], categorical: list[str]) -> Pipeline:
                 "model",
                 HistGradientBoostingRegressor(
                     learning_rate=0.05,
-                    max_iter=250,
+                    max_iter=MAX_ITER,
                     max_leaf_nodes=15,
                     l2_regularization=1.0,
+                    early_stopping=True,
+                    validation_fraction=VALIDATION_FRACTION,
+                    n_iter_no_change=EARLY_STOPPING_ROUNDS,
+                    tol=TOL,
                     random_state=42,
                 ),
             ),
@@ -101,9 +109,13 @@ def _classifier(numeric: list[str], categorical: list[str]) -> Pipeline:
                 "model",
                 HistGradientBoostingClassifier(
                     learning_rate=0.05,
-                    max_iter=250,
+                    max_iter=MAX_ITER,
                     max_leaf_nodes=15,
                     l2_regularization=1.0,
+                    early_stopping=True,
+                    validation_fraction=VALIDATION_FRACTION,
+                    n_iter_no_change=EARLY_STOPPING_ROUNDS,
+                    tol=TOL,
                     random_state=42,
                 ),
             ),
@@ -218,9 +230,13 @@ def _save_regression_learning_curve(
 
     model = HistGradientBoostingRegressor(
         learning_rate=0.05,
-        max_iter=250,
+        max_iter=MAX_ITER,
         max_leaf_nodes=15,
         l2_regularization=1.0,
+        early_stopping=True,
+        validation_fraction=VALIDATION_FRACTION,
+        n_iter_no_change=EARLY_STOPPING_ROUNDS,
+        tol=TOL,
         random_state=42,
     )
     model.fit(x_train, y_train)
@@ -283,9 +299,13 @@ def _save_classification_learning_curve(
 
     model = HistGradientBoostingClassifier(
         learning_rate=0.05,
-        max_iter=250,
+        max_iter=MAX_ITER,
         max_leaf_nodes=15,
         l2_regularization=1.0,
+        early_stopping=True,
+        validation_fraction=VALIDATION_FRACTION,
+        n_iter_no_change=EARLY_STOPPING_ROUNDS,
+        tol=TOL,
         random_state=42,
     )
     model.fit(x_train, y_train)
@@ -354,6 +374,13 @@ def train_supervised() -> dict:
         "players": int(table["player_key"].nunique()),
         "role_counts": table["role"].value_counts().to_dict(),
         "tier_counts": table["tier"].value_counts().to_dict(),
+        "early_stopping": {
+            "enabled": True,
+            "max_iter": MAX_ITER,
+            "validation_fraction": VALIDATION_FRACTION,
+            "n_iter_no_change": EARLY_STOPPING_ROUNDS,
+            "tol": TOL,
+        },
         "feature_columns": list(x.columns),
     }
 
@@ -369,10 +396,14 @@ def train_supervised() -> dict:
 
     regressor = _regressor(numeric, categorical)
     regressor.fit(x, table["y_impact"].astype(float))
+    metrics["final_models"] = {
+        "impact_regressor_n_iter": int(regressor.named_steps["model"].n_iter_),
+    }
     _save_model(regressor, REGRESSOR_PATH)
 
     classifier = _classifier(numeric, categorical)
     classifier.fit(x, table["tier"].astype(str))
+    metrics["final_models"]["tier_classifier_n_iter"] = int(classifier.named_steps["model"].n_iter_)
     _save_model(classifier, CLASSIFIER_PATH)
 
     with open(FEATURE_COLUMNS_PATH, "w", encoding="utf-8") as f:
