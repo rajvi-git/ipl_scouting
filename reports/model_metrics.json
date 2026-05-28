@@ -1,0 +1,217 @@
+{
+  "training_rows": 161,
+  "players": 120,
+  "role_counts": {
+    "bat": 90,
+    "bowl": 71
+  },
+  "tier_counts": {
+    "marginal": 56,
+    "bust": 41,
+    "solid": 39,
+    "star": 25
+  },
+  "feature_columns": [
+    "role",
+    "sma_balls",
+    "sma_balls_bowled",
+    "sma_bat_death_balls",
+    "sma_bat_death_runs",
+    "sma_bat_death_sr",
+    "sma_bat_innings",
+    "sma_bat_mid_balls",
+    "sma_bat_mid_runs",
+    "sma_bat_mid_sr",
+    "sma_bat_pp_balls",
+    "sma_bat_pp_runs",
+    "sma_bat_pp_sr",
+    "sma_boundary_pct",
+    "sma_bowl_death_balls",
+    "sma_bowl_death_economy",
+    "sma_bowl_death_runs",
+    "sma_bowl_innings",
+    "sma_bowl_mid_balls",
+    "sma_bowl_mid_economy",
+    "sma_bowl_mid_runs",
+    "sma_bowl_pp_balls",
+    "sma_bowl_pp_economy",
+    "sma_bowl_pp_runs",
+    "sma_bowling_sr",
+    "sma_caf_bat_death_sr",
+    "sma_caf_bat_mid_sr",
+    "sma_caf_bat_pp_sr",
+    "sma_caf_boundary_pct",
+    "sma_caf_bowl_death_economy",
+    "sma_caf_bowl_mid_economy",
+    "sma_caf_bowl_pp_economy",
+    "sma_caf_bowling_sr",
+    "sma_caf_economy",
+    "sma_caf_runs_per_innings",
+    "sma_caf_strike_rate",
+    "sma_caf_wickets_per_innings",
+    "sma_economy",
+    "sma_end_season",
+    "sma_fours",
+    "sma_noball_rate",
+    "sma_noballs",
+    "sma_runs",
+    "sma_runs_conceded",
+    "sma_runs_per_innings",
+    "sma_seasons",
+    "sma_shrunk_bat_death_sr",
+    "sma_shrunk_bat_mid_sr",
+    "sma_shrunk_bat_pp_sr",
+    "sma_shrunk_boundary_pct",
+    "sma_shrunk_bowl_death_economy",
+    "sma_shrunk_bowl_mid_economy",
+    "sma_shrunk_bowl_pp_economy",
+    "sma_shrunk_bowling_sr",
+    "sma_shrunk_economy",
+    "sma_shrunk_runs_per_innings",
+    "sma_shrunk_strike_rate",
+    "sma_shrunk_wickets_per_innings",
+    "sma_sixes",
+    "sma_start_season",
+    "sma_strike_rate",
+    "sma_wickets",
+    "sma_wickets_per_innings",
+    "sma_wide_rate",
+    "sma_wides"
+  ],
+  "impact_regression": {
+    "model": "sklearn_hist_gradient_boosting_regressor",
+    "n_splits": 5,
+    "mae": 0.5163934826371639,
+    "rmse": 0.705516778838166,
+    "spearman": 0.3232719856415376,
+    "folds": [
+      {
+        "fold": 1,
+        "mae": 0.5634522358965779,
+        "rmse": 0.6903470715231173,
+        "spearman": 0.2833333333333333,
+        "n_test": 33
+      },
+      {
+        "fold": 2,
+        "mae": 0.5218075984474086,
+        "rmse": 0.7174117176641762,
+        "spearman": 0.0,
+        "n_test": 32
+      },
+      {
+        "fold": 3,
+        "mae": 0.4811363397853032,
+        "rmse": 0.7970717124557964,
+        "spearman": 0.8999999999999998,
+        "n_test": 32
+      },
+      {
+        "fold": 4,
+        "mae": 0.5872023705356184,
+        "rmse": 0.7197851557071698,
+        "spearman": -0.14285714285714288,
+        "n_test": 32
+      },
+      {
+        "fold": 5,
+        "mae": 0.42689828248155476,
+        "rmse": 0.5871615647113798,
+        "spearman": -0.1666666666666667,
+        "n_test": 32
+      }
+    ]
+  },
+  "tier_classification": {
+    "model": "sklearn_hist_gradient_boosting_classifier",
+    "n_splits": 5,
+    "accuracy": 0.36645962732919257,
+    "labels": [
+      "bust",
+      "marginal",
+      "solid",
+      "star"
+    ],
+    "confusion_matrix": [
+      [
+        14,
+        11,
+        11,
+        5
+      ],
+      [
+        16,
+        28,
+        8,
+        4
+      ],
+      [
+        8,
+        13,
+        12,
+        6
+      ],
+      [
+        5,
+        5,
+        10,
+        5
+      ]
+    ],
+    "classification_report": {
+      "bust": {
+        "precision": 0.32558139534883723,
+        "recall": 0.34146341463414637,
+        "f1-score": 0.3333333333333333,
+        "support": 41.0
+      },
+      "marginal": {
+        "precision": 0.49122807017543857,
+        "recall": 0.5,
+        "f1-score": 0.49557522123893805,
+        "support": 56.0
+      },
+      "solid": {
+        "precision": 0.2926829268292683,
+        "recall": 0.3076923076923077,
+        "f1-score": 0.3,
+        "support": 39.0
+      },
+      "star": {
+        "precision": 0.25,
+        "recall": 0.2,
+        "f1-score": 0.2222222222222222,
+        "support": 25.0
+      },
+      "accuracy": 0.36645962732919257,
+      "macro avg": {
+        "precision": 0.339873098088386,
+        "recall": 0.3372889305816135,
+        "f1-score": 0.3377826941986234,
+        "support": 161.0
+      },
+      "weighted avg": {
+        "precision": 0.36349219431967916,
+        "recall": 0.36645962732919257,
+        "f1-score": 0.3644374820596444,
+        "support": 161.0
+      }
+    }
+  },
+  "learning_curves": {
+    "impact_regression": {
+      "csv": "C:\\Users\\Rajvi\\OneDrive\\Documents\\MSc AI Applied To Sports\\Module4\\ipl_scouting\\reports\\impact_regression_learning_curve.csv",
+      "png": "C:\\Users\\Rajvi\\OneDrive\\Documents\\MSc AI Applied To Sports\\Module4\\ipl_scouting\\reports\\impact_regression_learning_curve.png",
+      "best_iteration": 10,
+      "best_validation_mae": 0.5361042987894082,
+      "final_validation_mae": 0.5634522358965779
+    },
+    "tier_classification": {
+      "csv": "C:\\Users\\Rajvi\\OneDrive\\Documents\\MSc AI Applied To Sports\\Module4\\ipl_scouting\\reports\\tier_classification_learning_curve.csv",
+      "png": "C:\\Users\\Rajvi\\OneDrive\\Documents\\MSc AI Applied To Sports\\Module4\\ipl_scouting\\reports\\tier_classification_learning_curve.png",
+      "best_iteration": 5,
+      "best_validation_log_loss": 1.360470614005418,
+      "final_validation_log_loss": 1.9632468325268955
+    }
+  }
+}

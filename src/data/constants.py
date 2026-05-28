@@ -4,6 +4,8 @@ ROOT = Path(__file__).resolve().parents[2]
 RAW_DIR = ROOT / "data" / "raw"
 INTERIM_DIR = ROOT / "data" / "interim"
 PROCESSED_DIR = ROOT / "data" / "processed"
+MODELS_DIR = ROOT / "models"
+REPORTS_DIR = ROOT / "reports"
 
 # Kaggle (optional QA) — separate from Cricsheet interim files
 KAGGLE_MATCHES = INTERIM_DIR / "kaggle_matches.parquet"
