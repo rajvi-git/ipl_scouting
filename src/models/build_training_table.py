@@ -14,7 +14,7 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 from src.data.constants import PROCESSED_DIR
-from src.features.impact_score import add_impact_scores, add_tier_labels
+from src.features.impact_score import add_shrunk_impact_scores, add_tier_labels
 
 FEATURES_PATH = PROCESSED_DIR / "player_features.parquet"
 TRAINING_PATH = PROCESSED_DIR / "ml_training_pairs.parquet"
@@ -228,10 +228,12 @@ def build_training_table(features: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     label_cols = [c for c in table.columns if c.startswith("ipl_")]
     labels = table[["player_key", "role", *label_cols]].copy()
     labels = labels.rename(columns={c: c.removeprefix("ipl_") for c in label_cols})
-    labels = add_impact_scores(labels)
+    labels = add_shrunk_impact_scores(labels)
     labels, thresholds = add_tier_labels(labels)
 
-    table["y_impact"] = labels["ipl_impact"].values
+    table["y_impact_raw"] = labels["ipl_impact_raw"].values
+    table["y_impact_reliability"] = labels["ipl_impact_reliability"].values
+    table["y_impact"] = labels["ipl_impact_shrunk"].values
     table["tier"] = labels["tier"].values
     table = table[table["y_impact"].notna() & table["tier"].notna()].reset_index(drop=True)
     return table, thresholds

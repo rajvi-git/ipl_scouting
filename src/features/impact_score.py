@@ -7,20 +7,20 @@ import pandas as pd
 
 
 BAT_IMPACT_WEIGHTS = {
-    "strike_rate": 0.25,
-    "runs_per_innings": 0.25,
-    "boundary_pct": 0.15,
-    "bat_pp_sr": 0.10,
-    "bat_mid_sr": 0.10,
-    "bat_death_sr": 0.15,
+    "strike_rate": 0.40,
+    "runs_per_innings": 0.40,
+    "boundary_pct": 0.20,
 }
 
 BOWL_IMPACT_WEIGHTS = {
-    "economy": -0.25,
-    "bowling_sr": -0.20,
-    "wickets_per_innings": 0.25,
-    "bowl_pp_economy": -0.15,
-    "bowl_death_economy": -0.15,
+    "economy": -0.40,
+    "wickets_per_innings": 0.35,
+    "bowling_sr": -0.25,
+}
+
+IMPACT_SHRINKAGE_K = {
+    "bat": 10.0,
+    "bowl": 10.0,
 }
 
 
@@ -55,6 +55,36 @@ def add_impact_scores(labels: pd.DataFrame) -> pd.DataFrame:
 
         if used_weight > 0:
             out.loc[mask, "ipl_impact"] = score / used_weight
+    return out
+
+
+def add_shrunk_impact_scores(labels: pd.DataFrame) -> pd.DataFrame:
+    """Add raw, reliability, and sample-shrunk IPL impact labels."""
+    out = add_impact_scores(labels).rename(columns={"ipl_impact": "ipl_impact_raw"})
+    out["ipl_impact_reliability"] = np.nan
+    out["ipl_impact_shrunk"] = np.nan
+    out["ipl_impact"] = np.nan
+
+    for role in sorted(out["role"].dropna().unique()):
+        mask = (out["role"] == role) & out["ipl_impact_raw"].notna()
+        if not mask.any():
+            continue
+
+        sample_col = "bat_innings" if role == "bat" else "bowl_innings"
+        if sample_col not in out.columns:
+            sample = pd.Series(0.0, index=out.loc[mask].index)
+        else:
+            sample = out.loc[mask, sample_col].fillna(0).astype(float)
+
+        k = IMPACT_SHRINKAGE_K.get(role, 10.0)
+        reliability = sample / (sample + k)
+        role_mean = out.loc[mask, "ipl_impact_raw"].mean()
+        shrunk = reliability * out.loc[mask, "ipl_impact_raw"] + (1.0 - reliability) * role_mean
+
+        out.loc[mask, "ipl_impact_reliability"] = reliability
+        out.loc[mask, "ipl_impact_shrunk"] = shrunk
+        out.loc[mask, "ipl_impact"] = shrunk
+
     return out
 
 
