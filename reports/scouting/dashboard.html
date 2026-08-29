@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IPL Scouting Dashboard</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172026;
+      --muted: #61717d;
+      --line: #d8e0e5;
+      --surface: #ffffff;
+      --band: #f5f7f8;
+      --green: #2f6f73;
+      --copper: #b7653d;
+      --blue: #315f9c;
+      --gold: #b28b2e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--band);
+      line-height: 1.45;
+    }
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      padding: 18px 24px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 4;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 20px 18px 36px;
+    }
+    section {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      padding: 16px;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(140px, 1fr));
+      gap: 10px;
+    }
+    .kpi {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 84px;
+    }
+    .kpi .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    .kpi .value {
+      margin-top: 6px;
+      font-size: 26px;
+      font-weight: 700;
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: 160px 240px minmax(220px, 1fr);
+      gap: 10px;
+      align-items: end;
+    }
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+    select, input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 9px 10px;
+      font-size: 14px;
+      background: white;
+      color: var(--ink);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+    }
+    .chart-row {
+      display: grid;
+      grid-template-columns: 210px 1fr 72px;
+      gap: 10px;
+      align-items: center;
+      margin: 8px 0;
+      font-size: 13px;
+    }
+    .bar-bg {
+      height: 12px;
+      background: #e9eef1;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: var(--green);
+    }
+    .bar.bowl { background: var(--copper); }
+    .score {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+    }
+    .clusters {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .cluster {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .cluster strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+    .cluster span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: white;
+    }
+    th, td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: #eef3f5;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #384750;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    td.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 8px;
+      background: #f7fafb;
+      white-space: nowrap;
+    }
+    .reason {
+      min-width: 280px;
+      color: #384750;
+    }
+    footer {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 4px 2px 0;
+    }
+    @media (max-width: 900px) {
+      header { position: static; }
+      .kpis, .grid, .filters, .clusters {
+        grid-template-columns: 1fr;
+      }
+      .chart-row {
+        grid-template-columns: 130px 1fr 56px;
+      }
+      h1 { font-size: 21px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>IPL Scouting Dashboard</h1>
+    <p class="subtitle">SMA domestic candidates ranked by observed impact, player profile, and IPL comparability.</p>
+  </header>
+  <main>
+    <section>
+      <div class="kpis" id="kpis"></div>
+    </section>
+    <section>
+      <h2>Filters</h2>
+      <div class="filters">
+        <div>
+          <label for="roleFilter">Role</label>
+          <select id="roleFilter">
+            <option value="all">All roles</option>
+            <option value="bat">Batters</option>
+            <option value="bowl">Bowlers</option>
+          </select>
+        </div>
+        <div>
+          <label for="profileFilter">Profile</label>
+          <select id="profileFilter"></select>
+        </div>
+        <div>
+          <label for="searchBox">Search</label>
+          <input id="searchBox" type="search" placeholder="Player or IPL comparable">
+        </div>
+      </div>
+    </section>
+    <div class="grid">
+      <section>
+        <h2>Top Candidates</h2>
+        <div id="topBars"></div>
+      </section>
+      <section>
+        <h2>Player Profiles</h2>
+        <div class="clusters" id="clusterCards"></div>
+      </section>
+    </div>
+    <section>
+      <h2>Scouting Shortlist</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Role</th>
+              <th>Profile</th>
+              <th>Score</th>
+              <th>Impact %</th>
+              <th>Sample</th>
+              <th>Closest IPL Player</th>
+              <th>Similarity</th>
+              <th>Key Metrics</th>
+              <th>Scouting Reason</th>
+            </tr>
+          </thead>
+          <tbody id="shortlistBody"></tbody>
+        </table>
+      </div>
+    </section>
+    <footer>Generated from reports/scouting/scouting_shortlist.csv and cluster_summary.csv.</footer>
+  </main>
+  <script>
+    const data = {"shortlist":[{"player_name":"Virat Singh","role":"bat","sample":36.0,"scouting_score":87.15236787920385,"impact_score":0.6886285341585892,"impact_percentile":86.38297872340426,"profile_type":"Run accumulators","closest_ipl_player":"MEK Hussey","closest_ipl_profile_type":"Run accumulators","similarity_score":70.84201864992299,"strike_rate":130.37974683544306,"runs_per_innings":34.333333333333336,"boundary_pct":16.033755274261605,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 130.4, RPI 34.3, boundary% 16.0; closest IPL comp: MEK Hussey"},{"player_name":"Vivek Singh","role":"bat","sample":42.0,"scouting_score":85.99450926561427,"impact_score":0.5349303227325091,"impact_percentile":80.85106382978722,"profile_type":"Run accumulators","closest_ipl_player":"E Lewis","closest_ipl_profile_type":"Run accumulators","similarity_score":72.53598439552641,"strike_rate":136.25806451612902,"runs_per_innings":25.142857142857142,"boundary_pct":19.483870967741936,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 136.3, RPI 25.1, boundary% 19.5; closest IPL comp: E Lewis"},{"player_name":"Priyank Panchal","role":"bat","sample":35.0,"scouting_score":83.18050789293068,"impact_score":0.40890188607676525,"impact_percentile":77.02127659574468,"profile_type":"Run accumulators","closest_ipl_player":"RG Sharma","closest_ipl_profile_type":"Run accumulators","similarity_score":72.65399026319591,"strike_rate":128.8948069241012,"runs_per_innings":27.65714285714286,"boundary_pct":17.0439414114514,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 128.9, RPI 27.7, boundary% 17.0; closest IPL comp: RG Sharma"},{"player_name":"Rohan Kadam","role":"bat","sample":25.0,"scouting_score":82.65648592999314,"impact_score":0.9331051040603302,"impact_percentile":95.74468085106383,"profile_type":"Run accumulators","closest_ipl_player":"KL Rahul","closest_ipl_profile_type":"Run accumulators","similarity_score":64.21474194443299,"strike_rate":130.74901445466492,"runs_per_innings":39.8,"boundary_pct":18.265440210249672,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 130.7, RPI 39.8, boundary% 18.3; closest IPL comp: KL Rahul"},{"player_name":"Vishnu Vinod","role":"bat","sample":27.0,"scouting_score":80.83493479752917,"impact_score":0.7239011744791537,"impact_percentile":88.08510638297872,"profile_type":"Run accumulators","closest_ipl_player":"A Raghuvanshi","closest_ipl_profile_type":"Run accumulators","similarity_score":65.5560430374091,"strike_rate":144.36090225563908,"runs_per_innings":28.444444444444443,"boundary_pct":18.984962406015036,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 144.4, RPI 28.4, boundary% 19.0; closest IPL comp: A Raghuvanshi"},{"player_name":"SP Jackson","role":"bat","sample":37.0,"scouting_score":78.6774193548387,"impact_score":0.4917088174112442,"impact_percentile":80.0,"profile_type":"Run accumulators","closest_ipl_player":"KS Williamson","closest_ipl_profile_type":"Run accumulators","similarity_score":64.79782509516113,"strike_rate":130.04866180048663,"runs_per_innings":28.89189189189189,"boundary_pct":17.153284671532848,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 130.0, RPI 28.9, boundary% 17.2; closest IPL comp: KS Williamson"},{"player_name":"Anmolpreet Singh","role":"bat","sample":33.0,"scouting_score":78.28414550446122,"impact_score":0.684166213933189,"impact_percentile":85.95744680851064,"profile_type":"Run accumulators","closest_ipl_player":"Q de Kock","closest_ipl_profile_type":"Run accumulators","similarity_score":61.92871899350711,"strike_rate":140.7079646017699,"runs_per_innings":28.90909090909091,"boundary_pct":17.99410029498525,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 140.7, RPI 28.9, boundary% 18.0; closest IPL comp: Q de Kock"},{"player_name":"PN Mankad","role":"bat","sample":29.0,"scouting_score":78.02951269732327,"impact_score":0.5112975540349309,"impact_percentile":80.42553191489363,"profile_type":"Run accumulators","closest_ipl_player":"MP Stoinis","closest_ipl_profile_type":"Run accumulators","similarity_score":66.0816442374349,"strike_rate":142.46861924686192,"runs_per_innings":23.482758620689655,"boundary_pct":19.246861924686193,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 142.5, RPI 23.5, boundary% 19.2; closest IPL comp: MP Stoinis"},{"player_name":"Samarth Vyas","role":"bat","sample":22.0,"scouting_score":77.97014413177763,"impact_score":0.5790733458114938,"impact_percentile":82.12765957446808,"profile_type":"Run accumulators","closest_ipl_player":"Abishek Porel","closest_ipl_profile_type":"Run accumulators","similarity_score":70.21460884403699,"strike_rate":145.45454545454547,"runs_per_innings":23.272727272727273,"boundary_pct":21.306818181818183,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 145.5, RPI 23.3, boundary% 21.3; closest IPL comp: Abishek Porel"},{"player_name":"Jay Bista","role":"bat","sample":26.0,"scouting_score":77.75909402882635,"impact_score":0.832825339767593,"impact_percentile":92.34042553191489,"profile_type":"Run accumulators","closest_ipl_player":"HM Amla","closest_ipl_profile_type":"Run accumulators","similarity_score":60.49207478584354,"strike_rate":139.21901528013584,"runs_per_innings":31.53846153846154,"boundary_pct":20.882852292020374,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 139.2, RPI 31.5, boundary% 20.9; closest IPL comp: HM Amla"},{"player_name":"KH Devdhar","role":"bat","sample":45.0,"scouting_score":77.58339052848319,"impact_score":0.4855565384819888,"impact_percentile":79.57446808510639,"profile_type":"Run accumulators","closest_ipl_player":"MEK Hussey","closest_ipl_profile_type":"Run accumulators","similarity_score":64.18217826108243,"strike_rate":121.87234042553192,"runs_per_innings":31.822222222222223,"boundary_pct":16.680851063829788,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 121.9, RPI 31.8, boundary% 16.7; closest IPL comp: MEK Hussey"},{"player_name":"Rahul Singh","role":"bat","sample":24.0,"scouting_score":76.13040494166094,"impact_score":0.771850208787649,"impact_percentile":89.7872340425532,"profile_type":"Run accumulators","closest_ipl_player":"C Green","closest_ipl_profile_type":"Run accumulators","similarity_score":61.47913889769068,"strike_rate":150.61425061425064,"runs_per_innings":25.541666666666668,"boundary_pct":21.62162162162162,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 150.6, RPI 25.5, boundary% 21.6; closest IPL comp: C Green"},{"player_name":"Tanmay Agarwal","role":"bat","sample":36.0,"scouting_score":75.43514070006863,"impact_score":0.19304969873316805,"impact_percentile":62.5531914893617,"profile_type":"Run accumulators","closest_ipl_player":"M Vijay","closest_ipl_profile_type":"Run accumulators","similarity_score":73.3637788853213,"strike_rate":123.82864792503348,"runs_per_innings":25.694444444444443,"boundary_pct":15.796519410977242,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 123.8, RPI 25.7, boundary% 15.8; closest IPL comp: M Vijay"},{"player_name":"RK Bhui","role":"bat","sample":28.0,"scouting_score":74.17227179135209,"impact_score":1.0765877979599088,"impact_percentile":98.29787234042553,"profile_type":"Run accumulators","closest_ipl_player":"AB de Villiers","closest_ipl_profile_type":"Run accumulators","similarity_score":51.02435686067576,"strike_rate":154.33333333333331,"runs_per_innings":33.07142857142857,"boundary_pct":19.0,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 154.3, RPI 33.1, boundary% 19.0; closest IPL comp: AB de Villiers"},{"player_name":"Shivam Chauhan","role":"bat","sample":22.0,"scouting_score":72.67638984214139,"impact_score":0.2723710898641366,"impact_percentile":67.65957446808511,"profile_type":"Balanced batting group","closest_ipl_player":"G Gambhir","closest_ipl_profile_type":"Run accumulators","similarity_score":75.12647499861318,"strike_rate":123.1827111984283,"runs_per_innings":28.5,"boundary_pct":15.913555992141454,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Balanced batting group; SR 123.2, RPI 28.5, boundary% 15.9; closest IPL comp: G Gambhir"},{"player_name":"Harpreet Singh","role":"bat","sample":34.0,"scouting_score":71.27590940288263,"impact_score":0.7127284554483945,"impact_percentile":87.2340425531915,"profile_type":"Run accumulators","closest_ipl_player":"MEK Hussey","closest_ipl_profile_type":"Run accumulators","similarity_score":52.90038829711898,"strike_rate":131.36818687430477,"runs_per_innings":34.73529411764706,"boundary_pct":16.017797552836484,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 131.4, RPI 34.7, boundary% 16.0; closest IPL comp: MEK Hussey"},{"player_name":"AV Wankhade","role":"bat","sample":32.0,"scouting_score":69.8318462594372,"impact_score":0.33320430176299365,"impact_percentile":71.06382978723404,"profile_type":"Balanced batting group","closest_ipl_player":"A Symonds","closest_ipl_profile_type":"Balanced batting group","similarity_score":63.287964428249055,"strike_rate":136.43790849673204,"runs_per_innings":26.09375,"boundary_pct":13.88888888888889,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Balanced batting group; SR 136.4, RPI 26.1, boundary% 13.9; closest IPL comp: A Symonds"},{"player_name":"Pratham Singh","role":"bat","sample":32.0,"scouting_score":69.56280027453671,"impact_score":0.3678782935056943,"impact_percentile":72.76595744680851,"profile_type":"Run accumulators","closest_ipl_player":"SS Iyer","closest_ipl_profile_type":"Run accumulators","similarity_score":61.65822435846352,"strike_rate":127.84256559766764,"runs_per_innings":27.40625,"boundary_pct":16.909620991253643,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 127.8, RPI 27.4, boundary% 16.9; closest IPL comp: SS Iyer"},{"player_name":"IR Jaggi","role":"bat","sample":19.0,"scouting_score":69.35895676046671,"impact_score":0.7537050591896223,"impact_percentile":89.36170212765957,"profile_type":"Run accumulators","closest_ipl_player":"DR Smith","closest_ipl_profile_type":"Run accumulators","similarity_score":59.94597494525847,"strike_rate":142.58373205741626,"runs_per_innings":31.36842105263158,"boundary_pct":19.617224880382775,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 142.6, RPI 31.4, boundary% 19.6; closest IPL comp: DR Smith"},{"player_name":"Shashank Chandrakar","role":"bat","sample":27.0,"scouting_score":68.9687714481812,"impact_score":0.366079197800191,"impact_percentile":72.3404255319149,"profile_type":"Run accumulators","closest_ipl_player":"JR Hopes","closest_ipl_profile_type":"Run accumulators","similarity_score":63.37146361030689,"strike_rate":136.44444444444443,"runs_per_innings":22.74074074074074,"boundary_pct":18.88888888888889,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 136.4, RPI 22.7, boundary% 18.9; closest IPL comp: JR Hopes"},{"player_name":"Ashwin Hebbar","role":"bat","sample":35.0,"scouting_score":68.24845573095402,"impact_score":0.3605338833194477,"impact_percentile":71.48936170212767,"profile_type":"Run accumulators","closest_ipl_player":"RG Sharma","closest_ipl_profile_type":"Run accumulators","similarity_score":60.173872587739886,"strike_rate":127.24795640326975,"runs_per_innings":26.685714285714287,"boundary_pct":17.574931880108995,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 127.2, RPI 26.7, boundary% 17.6; closest IPL comp: RG Sharma"},{"player_name":"Urvil Patel","role":"bat","sample":31.0,"scouting_score":67.28380233356211,"impact_score":0.7339596820490784,"impact_percentile":88.51063829787233,"profile_type":"High-impact power hitters","closest_ipl_player":"PP Shaw","closest_ipl_profile_type":"High-impact power hitters","similarity_score":43.25141064109164,"strike_rate":152.36907730673317,"runs_per_innings":19.70967741935484,"boundary_pct":24.93765586034913,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"High-impact power hitters; SR 152.4, RPI 19.7, boundary% 24.9; closest IPL comp: PP Shaw"},{"player_name":"Hiten Dalal","role":"bat","sample":23.0,"scouting_score":66.79821551132463,"impact_score":0.5510769504060673,"impact_percentile":81.27659574468085,"profile_type":"Run accumulators","closest_ipl_player":"ST Jayasuriya","closest_ipl_profile_type":"Run accumulators","similarity_score":57.876705476529715,"strike_rate":142.1487603305785,"runs_per_innings":22.434782608695652,"boundary_pct":22.58953168044077,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 142.1, RPI 22.4, boundary% 22.6; closest IPL comp: ST Jayasuriya"},{"player_name":"Punit Bisht","role":"bat","sample":20.0,"scouting_score":65.59471516815374,"impact_score":0.9108566915444481,"impact_percentile":95.31914893617022,"profile_type":"Run accumulators","closest_ipl_player":"R Ravindra","closest_ipl_profile_type":"Run accumulators","similarity_score":44.19282918103716,"strike_rate":159.67213114754097,"runs_per_innings":24.35,"boundary_pct":24.59016393442623,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 159.7, RPI 24.4, boundary% 24.6; closest IPL comp: R Ravindra"},{"player_name":"AR Easwaran","role":"bat","sample":20.0,"scouting_score":65.57137954701442,"impact_score":0.2996389230764717,"impact_percentile":68.93617021276596,"profile_type":"Run accumulators","closest_ipl_player":"KS Williamson","closest_ipl_profile_type":"Run accumulators","similarity_score":66.2411920203698,"strike_rate":129.6127562642369,"runs_per_innings":28.45,"boundary_pct":14.350797266514807,"economy":null,"bowling_sr":null,"wickets_per_innings":null,"scouting_reason":"Run accumulators; SR 129.6, RPI 28.4, boundary% 14.4; closest IPL comp: KS Williamson"},{"player_name":"A Nagwaswalla","role":"bowl","sample":26.0,"scouting_score":87.17733056031318,"impact_score":0.5850960388482322,"impact_percentile":87.06467661691542,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"SL Malinga","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":65.21241758238324,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.082872928176796,"bowling_sr":15.083333333333334,"wickets_per_innings":1.3846153846153846,"scouting_reason":"High-impact strike/control bowlers; economy 7.08, bowling SR 15.1, WPI 1.38; closest IPL comp: SL Malinga"},{"player_name":"Satyajeet Bachhav","role":"bowl","sample":34.0,"scouting_score":84.94984095913873,"impact_score":0.5224181137684772,"impact_percentile":85.57213930348259,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"SP Narine","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":57.84379120451834,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":6.595419847328245,"bowling_sr":19.170731707317074,"wickets_per_innings":1.2058823529411764,"scouting_reason":"High-impact strike/control bowlers; economy 6.60, bowling SR 19.2, WPI 1.21; closest IPL comp: SP Narine"},{"player_name":"SZ Mulani","role":"bowl","sample":31.0,"scouting_score":84.76266209933937,"impact_score":0.4877969972136871,"impact_percentile":84.5771144278607,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"SP Narine","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":59.00919192194841,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":6.459499263622975,"bowling_sr":19.4,"wickets_per_innings":1.1290322580645162,"scouting_reason":"High-impact strike/control bowlers; economy 6.46, bowling SR 19.4, WPI 1.13; closest IPL comp: SP Narine"},{"player_name":"Suboth Bhati","role":"bowl","sample":33.0,"scouting_score":80.64900905309517,"impact_score":0.29524296981320675,"impact_percentile":71.64179104477611,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"Azhar Mahmood","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":65.27687891868362,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.6417489421720735,"bowling_sr":16.488372093023255,"wickets_per_innings":1.303030303030303,"scouting_reason":"High-impact strike/control bowlers; economy 7.64, bowling SR 16.5, WPI 1.30; closest IPL comp: Azhar Mahmood"},{"player_name":"Sayan Ghosh","role":"bowl","sample":25.0,"scouting_score":77.21189136285784,"impact_score":0.321372886961586,"impact_percentile":73.6318407960199,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"KK Cooper","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":62.991760489910334,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.438202247191011,"bowling_sr":16.6875,"wickets_per_innings":1.28,"scouting_reason":"High-impact strike/control bowlers; economy 7.44, bowling SR 16.7, WPI 1.28; closest IPL comp: KK Cooper"},{"player_name":"CV Milind","role":"bowl","sample":31.0,"scouting_score":76.52862735502814,"impact_score":0.20237142139311964,"impact_percentile":63.681592039801,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"Azhar Mahmood","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":72.43381040807853,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.835082458770614,"bowling_sr":16.675,"wickets_per_innings":1.2903225806451613,"scouting_reason":"High-impact strike/control bowlers; economy 7.84, bowling SR 16.7, WPI 1.29; closest IPL comp: Azhar Mahmood"},{"player_name":"LI Meriwala","role":"bowl","sample":40.0,"scouting_score":75.50740151700514,"impact_score":0.8012086915556351,"impact_percentile":94.5273631840796,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"AD Mascarenhas","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":40.82571702289558,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.2216867469879515,"bowling_sr":13.387096774193548,"wickets_per_innings":1.55,"scouting_reason":"High-impact strike/control bowlers; economy 7.22, bowling SR 13.4, WPI 1.55; closest IPL comp: AD Mascarenhas"},{"player_name":"A Choudhary","role":"bowl","sample":25.0,"scouting_score":74.01884022510399,"impact_score":0.5237688628325088,"impact_percentile":86.06965174129353,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"A Kumble","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":51.360324014546045,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":6.647058823529412,"bowling_sr":17.0,"wickets_per_innings":1.2,"scouting_reason":"High-impact strike/control bowlers; economy 6.65, bowling SR 17.0, WPI 1.20; closest IPL comp: A Kumble"},{"player_name":"Pankaj Jaswal","role":"bowl","sample":30.0,"scouting_score":73.91362857841938,"impact_score":0.48831054066246726,"impact_percentile":85.07462686567165,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"Imran Tahir","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":49.73635824043046,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.695885509838998,"bowling_sr":13.0,"wickets_per_innings":1.4333333333333333,"scouting_reason":"High-impact strike/control bowlers; economy 7.70, bowling SR 13.0, WPI 1.43; closest IPL comp: Imran Tahir"},{"player_name":"Akshay Karnewar","role":"bowl","sample":43.0,"scouting_score":73.62001468069488,"impact_score":0.6562239726586778,"impact_percentile":90.04975124378109,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"SP Narine","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":42.01866007179494,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":5.795053003533569,"bowling_sr":19.74418604651163,"wickets_per_innings":1.0,"scouting_reason":"High-impact strike/control bowlers; economy 5.80, bowling SR 19.7, WPI 1.00; closest IPL comp: SP Narine"},{"player_name":"A Sheth","role":"bowl","sample":44.0,"scouting_score":73.0780523611451,"impact_score":0.3591859823191425,"impact_percentile":75.62189054726367,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"CV Varun","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":52.47487912663432,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.736486486486486,"bowling_sr":15.05084745762712,"wickets_per_innings":1.3409090909090908,"scouting_reason":"High-impact strike/control bowlers; economy 7.74, bowling SR 15.1, WPI 1.34; closest IPL comp: CV Varun"},{"player_name":"DG Nalkande","role":"bowl","sample":26.0,"scouting_score":71.68430389038414,"impact_score":0.7646334689694183,"impact_percentile":94.02985074626866,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"CRD Fernando","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":40.81290475800227,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.692607003891052,"bowling_sr":11.422222222222222,"wickets_per_innings":1.7307692307692308,"scouting_reason":"High-impact strike/control bowlers; economy 7.69, bowling SR 11.4, WPI 1.73; closest IPL comp: CRD Fernando"},{"player_name":"Baltej Singh","role":"bowl","sample":27.0,"scouting_score":71.08208955223881,"impact_score":0.31530999033480156,"impact_percentile":72.636815920398,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"Azhar Mahmood","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":55.42926501250367,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.608040201005025,"bowling_sr":16.583333333333332,"wickets_per_innings":1.3333333333333333,"scouting_reason":"High-impact strike/control bowlers; economy 7.61, bowling SR 16.6, WPI 1.33; closest IPL comp: Azhar Mahmood"},{"player_name":"Mayank Dagar","role":"bowl","sample":30.0,"scouting_score":71.06740885735258,"impact_score":0.655071369745238,"impact_percentile":89.55223880597015,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"A Chandila","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":41.79458832099058,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":5.663026521060843,"bowling_sr":20.677419354838708,"wickets_per_innings":1.0333333333333334,"scouting_reason":"High-impact strike/control bowlers; economy 5.66, bowling SR 20.7, WPI 1.03; closest IPL comp: A Chandila"},{"player_name":"Rahil Shah","role":"bowl","sample":18.0,"scouting_score":70.43950330315634,"impact_score":0.44712391295419784,"impact_percentile":81.09452736318407,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"A Kumble","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":56.04722812891056,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":6.0,"bowling_sr":20.055555555555557,"wickets_per_innings":1.0,"scouting_reason":"High-impact strike/control bowlers; economy 6.00, bowling SR 20.1, WPI 1.00; closest IPL comp: A Kumble"},{"player_name":"Ashutosh Aman","role":"bowl","sample":23.0,"scouting_score":70.38781502324443,"impact_score":0.6824670029015738,"impact_percentile":92.03980099502488,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"SP Narine","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":43.824352546957165,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":6.037974683544304,"bowling_sr":17.555555555555557,"wickets_per_innings":1.173913043478261,"scouting_reason":"High-impact strike/control bowlers; economy 6.04, bowling SR 17.6, WPI 1.17; closest IPL comp: SP Narine"},{"player_name":"Bandaru Ayyappa","role":"bowl","sample":23.0,"scouting_score":69.91313922192317,"impact_score":0.18548213299988064,"impact_percentile":61.19402985074627,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"A Nehra","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":65.95224862867379,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.684210526315789,"bowling_sr":17.689655172413794,"wickets_per_innings":1.2608695652173914,"scouting_reason":"High-impact strike/control bowlers; economy 7.68, bowling SR 17.7, WPI 1.26; closest IPL comp: A Nehra"},{"player_name":"Cheepurapalli Stephen","role":"bowl","sample":22.0,"scouting_score":69.34426229508196,"impact_score":1.3636226614763884,"impact_percentile":100.0,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"Sohail Tanvir","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":30.618865284828306,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":6.209445585215606,"bowling_sr":11.595238095238095,"wickets_per_innings":1.9090909090909092,"scouting_reason":"High-impact strike/control bowlers; economy 6.21, bowling SR 11.6, WPI 1.91; closest IPL comp: Sohail Tanvir"},{"player_name":"IC Porel","role":"bowl","sample":21.0,"scouting_score":69.33783949106923,"impact_score":0.5558140079192158,"impact_percentile":86.56716417910447,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"A Kumble","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":49.33696511768376,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":6.5131578947368425,"bowling_sr":17.53846153846154,"wickets_per_innings":1.2380952380952381,"scouting_reason":"High-impact strike/control bowlers; economy 6.51, bowling SR 17.5, WPI 1.24; closest IPL comp: A Kumble"},{"player_name":"Ajay Mandal","role":"bowl","sample":26.0,"scouting_score":68.80382921458282,"impact_score":0.1638717452633347,"impact_percentile":60.19900497512438,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"A Mishra","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":60.76127506905989,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.011904761904763,"bowling_sr":19.384615384615383,"wickets_per_innings":1.0,"scouting_reason":"High-impact strike/control bowlers; economy 7.01, bowling SR 19.4, WPI 1.00; closest IPL comp: A Mishra"},{"player_name":"Ravi Teja","role":"bowl","sample":20.0,"scouting_score":68.15053829214582,"impact_score":0.3973142744210766,"impact_percentile":79.60199004975125,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"A Nehra","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":52.88223447101781,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.583535108958838,"bowling_sr":14.75,"wickets_per_innings":1.4,"scouting_reason":"High-impact strike/control bowlers; economy 7.58, bowling SR 14.8, WPI 1.40; closest IPL comp: A Nehra"},{"player_name":"Sumit Kumar","role":"bowl","sample":30.0,"scouting_score":68.01932958160019,"impact_score":0.36850922783863505,"impact_percentile":76.61691542288557,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"MM Patel","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":48.903740623927916,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.387351778656127,"bowling_sr":14.055555555555555,"wickets_per_innings":1.2,"scouting_reason":"High-impact strike/control bowlers; economy 7.39, bowling SR 14.1, WPI 1.20; closest IPL comp: MM Patel"},{"player_name":"CP Singh","role":"bowl","sample":20.0,"scouting_score":67.56636897479814,"impact_score":0.3103582005393828,"impact_percentile":72.13930348258707,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"SP Narine","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":56.24267720883508,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":6.734375,"bowling_sr":18.285714285714285,"wickets_per_innings":1.05,"scouting_reason":"High-impact strike/control bowlers; economy 6.73, bowling SR 18.3, WPI 1.05; closest IPL comp: SP Narine"},{"player_name":"Gurinder Singh","role":"bowl","sample":28.0,"scouting_score":67.32016148764373,"impact_score":0.12124603723439589,"impact_percentile":57.2139303482587,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"PP Ojha","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":59.45371870836908,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.078431372549019,"bowling_sr":21.103448275862068,"wickets_per_innings":1.0357142857142858,"scouting_reason":"High-impact strike/control bowlers; economy 7.08, bowling SR 21.1, WPI 1.04; closest IPL comp: PP Ojha"},{"player_name":"HP Patel","role":"bowl","sample":26.0,"scouting_score":67.27764864203571,"impact_score":0.4663395784711958,"impact_percentile":82.58706467661692,"profile_type":"High-impact strike/control bowlers","closest_ipl_player":"DW Steyn","closest_ipl_profile_type":"High-impact strike/control bowlers","similarity_score":45.17338265188195,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":6.614259597806216,"bowling_sr":18.233333333333334,"wickets_per_innings":1.1538461538461537,"scouting_reason":"High-impact strike/control bowlers; economy 6.61, bowling SR 18.2, WPI 1.15; closest IPL comp: DW Steyn"}],"clusters":[{"role":"bat","cluster":0.0,"profile_type":"High-impact power hitters","players":37.0,"sma_players":9.0,"ipl_players":29.0,"mean_sample":34.76315789473684,"impact_score":0.811351629060469,"strike_rate":165.1388034788869,"runs_per_innings":21.43353663123444,"boundary_pct":25.320275705992678,"economy":null,"bowling_sr":null,"wickets_per_innings":null},{"role":"bat","cluster":1.0,"profile_type":"Low-output batting group","players":104.0,"sma_players":24.0,"ipl_players":80.0,"mean_sample":20.60576923076923,"impact_score":-0.8435289956969823,"strike_rate":90.28168138225786,"runs_per_innings":7.1889455006852305,"boundary_pct":9.162445749231658,"economy":null,"bowling_sr":null,"wickets_per_innings":null},{"role":"bat","cluster":2.0,"profile_type":"Run accumulators","players":165.0,"sma_players":85.0,"ipl_players":105.0,"mean_sample":57.257894736842104,"impact_score":0.5853203603145511,"strike_rate":140.076577109849,"runs_per_innings":26.295066051604095,"boundary_pct":19.015733679496382,"economy":null,"bowling_sr":null,"wickets_per_innings":null},{"role":"bat","cluster":3.0,"profile_type":"Balanced batting group","players":234.0,"sma_players":117.0,"ipl_players":136.0,"mean_sample":33.790513833992094,"impact_score":-0.12404923292276247,"strike_rate":122.08900781304945,"runs_per_innings":17.088366036948134,"boundary_pct":14.69902337130702,"economy":null,"bowling_sr":null,"wickets_per_innings":null},{"role":"bowl","cluster":0.0,"profile_type":"High-impact strike/control bowlers","players":161.0,"sma_players":101.0,"ipl_players":64.0,"mean_sample":39.57575757575758,"impact_score":0.48132669876394474,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.272593041708893,"bowling_sr":17.98374575279837,"wickets_per_innings":1.2001842948454455},{"role":"bowl","cluster":1.0,"profile_type":"Low-wicket expensive group","players":34.0,"sma_players":5.0,"ipl_players":30.0,"mean_sample":18.0,"impact_score":-0.8229016475666245,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":8.993791783687973,"bowling_sr":39.736554052856576,"wickets_per_innings":0.3895415246424803},{"role":"bowl","cluster":2.0,"profile_type":"Economy support bowlers","players":150.0,"sma_players":80.0,"ipl_players":79.0,"mean_sample":37.44025157232704,"impact_score":-0.11914845428169281,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":7.481512178133288,"bowling_sr":25.928142214069883,"wickets_per_innings":0.72156521177853},{"role":"bowl","cluster":3.0,"profile_type":"Attacking wicket-takers","players":142.0,"sma_players":15.0,"ipl_players":129.0,"mean_sample":36.28472222222222,"impact_score":-0.1396085100354384,"strike_rate":null,"runs_per_innings":null,"boundary_pct":null,"economy":9.234107797113012,"bowling_sr":21.22789086501324,"wickets_per_innings":0.9306980626666361}]};
+    const shortlist = data.shortlist;
+    const clusters = data.clusters;
+
+    const roleFilter = document.getElementById('roleFilter');
+    const profileFilter = document.getElementById('profileFilter');
+    const searchBox = document.getElementById('searchBox');
+
+    function fmt(value, digits = 1) {
+      if (value === null || value === undefined || Number.isNaN(value)) return 'NA';
+      return Number(value).toFixed(digits);
+    }
+
+    function roleLabel(role) {
+      return role === 'bat' ? 'Batter' : 'Bowler';
+    }
+
+    function filteredRows() {
+      const role = roleFilter.value;
+      const profile = profileFilter.value;
+      const q = searchBox.value.trim().toLowerCase();
+      return shortlist.filter(row => {
+        const roleOk = role === 'all' || row.role === role;
+        const profileOk = profile === 'all' || row.profile_type === profile;
+        const text = `${row.player_name} ${row.closest_ipl_player} ${row.profile_type}`.toLowerCase();
+        return roleOk && profileOk && (!q || text.includes(q));
+      }).sort((a, b) => b.scouting_score - a.scouting_score);
+    }
+
+    function setProfileOptions() {
+      const role = roleFilter.value;
+      const profiles = [...new Set(shortlist
+        .filter(row => role === 'all' || row.role === role)
+        .map(row => row.profile_type)
+        .filter(Boolean))]
+        .sort();
+      const current = profileFilter.value;
+      profileFilter.innerHTML = '<option value="all">All profiles</option>' +
+        profiles.map(p => `<option value="${p}">${p}</option>`).join('');
+      if (profiles.includes(current)) profileFilter.value = current;
+    }
+
+    function renderKpis(rows) {
+      const batters = rows.filter(row => row.role === 'bat').length;
+      const bowlers = rows.filter(row => row.role === 'bowl').length;
+      const avgScore = rows.length ? rows.reduce((sum, row) => sum + row.scouting_score, 0) / rows.length : 0;
+      const top = rows[0]?.player_name || 'NA';
+      document.getElementById('kpis').innerHTML = [
+        ['Candidates', rows.length],
+        ['Batters', batters],
+        ['Bowlers', bowlers],
+        ['Avg Score', fmt(avgScore, 1)],
+      ].map(([label, value]) => `<div class="kpi"><div class="label">${label}</div><div class="value">${value}</div></div>`).join('');
+    }
+
+    function renderBars(rows) {
+      const top = rows.slice(0, 12);
+      const maxScore = Math.max(...top.map(row => row.scouting_score), 1);
+      document.getElementById('topBars').innerHTML = top.map(row => {
+        const pct = Math.max(2, row.scouting_score / maxScore * 100);
+        const cls = row.role === 'bowl' ? 'bar bowl' : 'bar';
+        return `<div class="chart-row">
+          <div>${row.player_name}</div>
+          <div class="bar-bg"><div class="${cls}" style="width:${pct}%"></div></div>
+          <div class="score">${fmt(row.scouting_score, 1)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderClusters() {
+      document.getElementById('clusterCards').innerHTML = clusters.map(cluster => {
+        const metric = cluster.role === 'bat'
+          ? `SR ${fmt(cluster.strike_rate)}, RPI ${fmt(cluster.runs_per_innings)}, boundary% ${fmt(cluster.boundary_pct)}`
+          : `Econ ${fmt(cluster.economy, 2)}, BSR ${fmt(cluster.bowling_sr)}, WPI ${fmt(cluster.wickets_per_innings, 2)}`;
+        return `<div class="cluster">
+          <strong>${roleLabel(cluster.role)}: ${cluster.profile_type}</strong>
+          <span>${cluster.players} players | SMA ${cluster.sma_players} | IPL ${cluster.ipl_players}</span>
+          <span>Mean impact ${fmt(cluster.impact_score, 2)} | ${metric}</span>
+        </div>`;
+      }).join('');
+    }
+
+    function keyMetrics(row) {
+      if (row.role === 'bat') {
+        return `SR ${fmt(row.strike_rate)}<br>RPI ${fmt(row.runs_per_innings)}<br>Boundary ${fmt(row.boundary_pct)}%`;
+      }
+      return `Economy ${fmt(row.economy, 2)}<br>BSR ${fmt(row.bowling_sr)}<br>WPI ${fmt(row.wickets_per_innings, 2)}`;
+    }
+
+    function renderTable(rows) {
+      document.getElementById('shortlistBody').innerHTML = rows.map(row => `<tr>
+        <td><strong>${row.player_name}</strong></td>
+        <td>${roleLabel(row.role)}</td>
+        <td><span class="tag">${row.profile_type}</span></td>
+        <td class="num">${fmt(row.scouting_score, 1)}</td>
+        <td class="num">${fmt(row.impact_percentile, 1)}</td>
+        <td class="num">${fmt(row.sample, 0)}</td>
+        <td>${row.closest_ipl_player || 'NA'}</td>
+        <td class="num">${fmt(row.similarity_score, 1)}</td>
+        <td>${keyMetrics(row)}</td>
+        <td class="reason">${row.scouting_reason || ''}</td>
+      </tr>`).join('');
+    }
+
+    function render() {
+      setProfileOptions();
+      const rows = filteredRows();
+      renderKpis(rows);
+      renderBars(rows);
+      renderClusters();
+      renderTable(rows);
+    }
+
+    roleFilter.addEventListener('change', render);
+    profileFilter.addEventListener('change', render);
+    searchBox.addEventListener('input', render);
+    render();
+  </script>
+</body>
+</html>
