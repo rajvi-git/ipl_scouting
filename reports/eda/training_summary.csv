@@ -1,0 +1,3 @@
+role,training_rows,players,mean_target_ipl_sample,median_target_ipl_sample,mean_y_impact_reliability,tier_counts
+bat,421,113,10.377672209026128,11.0,0.49320223518409734,"{'marginal': 147, 'bust': 106, 'solid': 105, 'star': 63}"
+bowl,336,99,10.369047619047619,10.0,0.4931493166484116,"{'marginal': 118, 'bust': 84, 'solid': 83, 'star': 51}"

@@ -1,0 +1,5 @@
+competition,role,player_season_rows,players,seasons,first_season,last_season,total_bat_innings,total_bowl_innings
+IPL,bat,2948,731,19,2008,2026,18603.0,0.0
+IPL,bowl,2199,576,19,2008,2026,0.0,14580.0
+SMA,bat,2797,1304,7,2016,2024,10527.0,0.0
+SMA,bowl,2037,974,7,2016,2024,0.0,8278.0
