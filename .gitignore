@@ -3,3 +3,4 @@ __pycache__/
 .codex_deps/
 .matplotlib_cache/
 *.ipynb.bak
+temp_op.txt
